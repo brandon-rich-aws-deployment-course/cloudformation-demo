@@ -1,0 +1,36 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: A test stack for demonstrating Cloudformation
+Parameters:
+  Subnet:
+    Description: Subnet in which to place the resources
+    Type: AWS::EC2::Subnet::Id
+  SecurityGroup:
+    Description: This group will be applied to both the ELB and instances in the ASG
+    Type: AWS::EC2::SecurityGroup::Id
+  InstanceType:
+    Description: The instance type for the Launch Config
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum install nginx -y
+          sudo service nginx start
+      ImageId: ami-b04e92d0
+      InstanceType:
+        Ref: InstanceType
+      SecurityGroupIds:
+        - Ref: SecurityGroup
+      SubnetId:
+        Ref: Subnet

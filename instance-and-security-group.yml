@@ -1,0 +1,93 @@
+Description: >
+    Template for creating a single ec2 instance and an attached security group.  Also allows you to specify existing security groups to attach.
+Parameters:
+
+    InstanceName:
+        Description: The name tag for the instance
+        Type: String
+
+    VPC:
+        Type: AWS::EC2::VPC::Id
+        Description: Choose which VPC the security group should be deployed to
+
+    Subnet:
+        Description: The subnet in which to deploy the instance
+        Type: AWS::EC2::Subnet::Id   
+
+    Contact:
+        Description: Contact email
+        Default: foo@bar.com
+        Type: String    
+
+    Keyname:
+        Description: Key to provision for SSHing into the ec2 instance
+        Type: AWS::EC2::KeyPair::KeyName   
+
+    InstanceAMI:
+        Description: AMI for the instance
+        Type: AWS::EC2::Image::Id
+
+    InstanceType:
+        Description: what instance type the ec2 instance should use
+        Default: t2.nano
+        AllowedValues: 
+          - t2.nano
+          - t2.micro
+          - t2.small
+        Type: String
+
+
+
+Resources:
+
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow world HTTPS access to this instance.
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '443'
+        ToPort: '443'
+        CidrIp: 0.0.0.0/0
+
+
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: 
+        Ref: InstanceAMI
+      InstanceType:
+        Ref: InstanceType
+      SecurityGroupIds:
+        - Ref: MySecurityGroup
+      SubnetId:
+        Ref: Subnet
+      Tags:
+        - Key: Contact
+          Value: !Ref Contact
+        - Key: Name
+          Value: !Ref InstanceName  
+
+  MyOtherInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: 
+        Ref: InstanceAMI
+      InstanceType:
+        Ref: InstanceType
+      SecurityGroupIds:
+        - Ref: MySecurityGroup
+      SubnetId:
+        Ref: Subnet
+      Tags:
+        - Key: Contact
+          Value: !Ref Contact
+        - Key: Name
+          Value: !Ref InstanceName
+
+
+Outputs:
+  InstanceID:
+    Description: The Instance ID
+    Value: !Ref MyInstance

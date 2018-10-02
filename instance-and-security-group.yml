@@ -69,23 +69,6 @@ Resources:
         - Key: Name
           Value: !Ref InstanceName  
 
-  MyOtherInstance:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: 
-        Ref: InstanceAMI
-      InstanceType:
-        Ref: InstanceType
-      SecurityGroupIds:
-        - Ref: MySecurityGroup
-      SubnetId:
-        Ref: Subnet
-      Tags:
-        - Key: Contact
-          Value: !Ref Contact
-        - Key: Name
-          Value: !Ref InstanceName
-
 
 Outputs:
   InstanceID:

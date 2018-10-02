@@ -1,0 +1,64 @@
+Description: >
+    Template for creating a single ec2 instance and an attached security group.  Also allows you to specify existing security groups to attach.
+Parameters:
+
+    InstanceName:
+        Description: The name tag for the instance
+        Type: String
+
+    LinuxPlatform:
+      Type: String
+      Description: Which Linux Platform do you want?
+      Default: Amazon Linux 2
+      AllowedValues: 
+        - Amazon Linux 2
+        - Ubuntu
+        - Red Hat      
+
+    RoleForLambda:
+        Description: ARN of the role you created
+        Type: String
+
+
+Resources:
+
+  MyCustomResourceFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          var response = require('cfn-response');
+          var aws = require("aws-sdk");
+          exports.handler = function(event, context) {
+            var platform = event.ResourceProperties.RequestedPlatform;
+            var responseData = {msg: "hello world!", msg2: platform + "--ok"};
+            response.send(event, context, response.SUCCESS, responseData);
+          };
+      Handler: index.handler
+      Timeout: 30
+      Runtime: nodejs4.3
+      Role: !Ref RoleForLambda
+
+  MyCustomResourceCallout:
+    Type: Custom::LambdaCallout
+    Properties:
+      ServiceToken:
+        Fn::GetAtt: 
+          - MyCustomResourceFunction
+          - Arn      
+      RequestedPlatform: !Ref LinuxPlatform
+
+Outputs:
+  AMIValue:
+    Description: Output from the custom fcuntion
+    Value: 
+      Fn::GetAtt: 
+        - MyCustomResourceCallout
+        - msg  
+
+  InputReturned:
+    Description: Pipe out the input so we know we got it
+    Value: 
+      Fn::GetAtt: 
+        - MyCustomResourceCallout
+        - msg2          

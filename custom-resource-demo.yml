@@ -1,19 +1,11 @@
 Description: >
-    Template for creating a single ec2 instance and an attached security group.  Also allows you to specify existing security groups to attach.
+    Simple custom resource demo
 Parameters:
 
-    InstanceName:
-        Description: The name tag for the instance
-        Type: String
-
-    LinuxPlatform:
+    InputMessage:
       Type: String
-      Description: Which Linux Platform do you want?
-      Default: Amazon Linux 2
-      AllowedValues: 
-        - Amazon Linux 2
-        - Ubuntu
-        - Red Hat      
+      Description: An input to the custom resource
+      Default: Hello function!    
 
     RoleForLambda:
         Description: ARN of the role you created
@@ -30,8 +22,8 @@ Resources:
           var response = require('cfn-response');
           var aws = require("aws-sdk");
           exports.handler = function(event, context) {
-            var platform = event.ResourceProperties.RequestedPlatform;
-            var responseData = {msg: "hello world!", msg2: platform + "--ok"};
+            var input = event.ResourceProperties.InputParameter;
+            var responseData = {msg: "hello world!", msg2: input + " --received from caller"};
             response.send(event, context, response.SUCCESS, responseData);
           };
       Handler: index.handler
@@ -42,23 +34,14 @@ Resources:
   MyCustomResourceCallout:
     Type: Custom::LambdaCallout
     Properties:
-      ServiceToken:
-        Fn::GetAtt: 
-          - MyCustomResourceFunction
-          - Arn      
-      RequestedPlatform: !Ref LinuxPlatform
+      ServiceToken: !GetAtt MyCustomResourceFunction.Arn
+      InputParameter: !Ref InputMessage
 
 Outputs:
-  AMIValue:
-    Description: Output from the custom fcuntion
-    Value: 
-      Fn::GetAtt: 
-        - MyCustomResourceCallout
-        - msg  
+  OutputFromFunction:
+    Description: Output from the custom function
+    Value: !GetAtt MyCustomResourceCallout.msg
 
-  InputReturned:
+  ModifiedInputReturned:
     Description: Pipe out the input so we know we got it
-    Value: 
-      Fn::GetAtt: 
-        - MyCustomResourceCallout
-        - msg2          
+    Value: !GetAtt MyCustomResourceCallout.msg2

@@ -27,7 +27,7 @@ Resources:
           #!/bin/bash -xe
           yum install nginx -y
           sudo service nginx start
-      ImageId: ami-b04e92d0
+      ImageId: ami-087c17d1fe0178315
       InstanceType:
         Ref: InstanceType
       SecurityGroupIds:

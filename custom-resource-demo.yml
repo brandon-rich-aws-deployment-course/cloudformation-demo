@@ -28,7 +28,7 @@ Resources:
           };
       Handler: index.handler
       Timeout: 30
-      Runtime: nodejs4.3
+      Runtime: nodejs14.x
       Role: !Ref RoleForLambda
 
   MyCustomResourceCallout:

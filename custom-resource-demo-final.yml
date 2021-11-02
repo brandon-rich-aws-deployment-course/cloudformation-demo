@@ -1,0 +1,58 @@
+Description: >
+    Simple custom resource demo
+Parameters:
+
+    BucketName:
+      Type: String
+      Description: The name of the s3 bucket you want to create    
+
+    RoleForLambda:
+        Description: ARN of the role you created
+        Type: String
+
+
+Resources:
+
+  MyCustomResourceFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          var response = require('cfn-response');
+          var aws = require("aws-sdk");
+          exports.handler = function(event, context) {
+            var responseText = "starting function"
+            var s3 = new aws.S3();
+            var bucketName = event.ResourceProperties.BucketName;
+            responseText = "got bucket name: " + bucketName
+            if ( event.RequestType == 'Create' ) {
+              s3.createBucket( { Bucket: bucketName }, function(err,data) {
+                responseText = "created bucket " + bucketName
+              })
+            } else if ( event.RequestType  == 'Delete' ) {
+              s3.deleteBucket({Bucket: bucketName}, function(err,data){
+                responseText = "deleted bucket " + bucketName
+              })
+            }
+            var responseData = {msg: "hello world!", responseText: responseText};
+            response.send(event, context, response.SUCCESS, responseData);
+          };
+      Handler: index.handler
+      Timeout: 30
+      Runtime: nodejs14.x
+      Role: !Ref RoleForLambda
+
+  MyCustomResourceCallout:
+    Type: Custom::LambdaCallout
+    Properties:
+      ServiceToken: !GetAtt MyCustomResourceFunction.Arn
+      BucketName: !Ref BucketName
+
+Outputs:
+  OutputFromFunction:
+    Description: Output from the custom function
+    Value: !GetAtt MyCustomResourceCallout.msg
+
+  ResponseText:
+    Description: Output from the custom function
+    Value: !GetAtt MyCustomResourceCallout.responseText

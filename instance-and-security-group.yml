@@ -25,7 +25,7 @@ Parameters:
 
     InstanceAMI:
         Description: AMI for the instance
-        Type: AWS::EC2::Image::Id
+        Type: String
 
     InstanceType:
         Description: what instance type the ec2 instance should use

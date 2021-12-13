@@ -27,11 +27,11 @@ Resources:
             responseText = "got bucket name: " + bucketName
             if ( event.RequestType == 'Create' ) {
               s3.createBucket( { Bucket: bucketName }, function(err,data) {
-                responseText = "created bucket " + bucketName
+                responseText = "failed to create bucket " + bucketName + ": " + err
               })
             } else if ( event.RequestType  == 'Delete' ) {
               s3.deleteBucket({Bucket: bucketName}, function(err,data){
-                responseText = "deleted bucket " + bucketName
+                responseText = "failed to delete bucket " + bucketName + ": " + err
               })
             }
             var responseData = {msg: "hello world!", responseText: responseText};

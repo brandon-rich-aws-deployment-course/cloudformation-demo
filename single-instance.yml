@@ -5,6 +5,9 @@ Parameters:
   Subnet:
     Description: Subnet in which to place the resources
     Type: AWS::EC2::Subnet::Id
+  IamInstanceProfile:
+    Description: IAM profile for instance
+    Type: String
   SecurityGroup:
     Description: This group will be applied to both the ELB and instances in the ASG
     Type: AWS::EC2::SecurityGroup::Id
@@ -25,7 +28,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          yum install nginx -y
+          sudo amazon-linux-extras install nginx1 -y
           sudo service nginx start
       ImageId: ami-087c17d1fe0178315
       InstanceType:
@@ -34,3 +37,5 @@ Resources:
         - Ref: SecurityGroup
       SubnetId:
         Ref: Subnet
+      IamInstanceProfile:
+        Ref: IamInstanceProfile

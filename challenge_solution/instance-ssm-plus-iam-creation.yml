@@ -1,0 +1,72 @@
+Description: >
+    Template for creating a single ec2 instance and an attached security group.  Also allows you to specify existing security groups to attach.
+Parameters:
+
+    InstanceName:
+        Description: The name tag for the instance
+        Type: String
+
+    Subnet:
+        Description: The subnet in which to deploy the instance
+        Type: AWS::EC2::Subnet::Id   
+
+    Contact:
+        Description: Contact email
+        Default: foo@bar.com
+        Type: String    
+
+    InstanceAMI:
+        Description: AMI for the instance
+        Default: ami-051f8a213df8bc089
+        Type: String
+
+    InstanceType:
+        Description: what instance type the ec2 instance should use
+        Default: t2.nano
+        AllowedValues: 
+          - t2.nano
+          - t2.micro
+          - t2.small
+        Type: String
+
+
+
+Resources:
+
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: 
+        Ref: InstanceAMI
+      InstanceType:
+        Ref: InstanceType
+      IamInstanceProfile: EC2InstanceProfileForSystemsManager
+      SubnetId:
+        Ref: Subnet
+      Tags:
+        - Key: Contact
+          Value: !Ref Contact
+        - Key: Name
+          Value: !Ref InstanceName  
+
+  SSMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      RoleName: MySSMRole
+
+
+Outputs:
+  InstanceID:
+    Description: The Instance ID
+    Value: !Ref MyInstance

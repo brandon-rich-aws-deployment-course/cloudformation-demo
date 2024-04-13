@@ -43,7 +43,7 @@ Resources:
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow world HTTPS access to this instance.
+      GroupDescription: Allow world SSH access to this instance.
       VpcId: !Ref VPC
       SecurityGroupIngress:
       - IpProtocol: tcp

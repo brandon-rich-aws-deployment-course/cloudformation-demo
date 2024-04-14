@@ -40,7 +40,7 @@ Resources:
         Ref: InstanceAMI
       InstanceType:
         Ref: InstanceType
-      IamInstanceProfile: EC2InstanceProfileForSystemsManager
+      IamInstanceProfile: !Ref SSMInstanceProfile 
       SubnetId:
         Ref: Subnet
       Tags:
@@ -64,6 +64,13 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
       RoleName: MySSMRole
+
+  SSMInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: SSMRole      
 
 
 Outputs:

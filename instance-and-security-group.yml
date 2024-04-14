@@ -61,6 +61,8 @@ Resources:
         Ref: InstanceType
       SecurityGroupIds:
         - Ref: MySecurityGroup
+      KeyName:
+        Ref: Keyname
       SubnetId:
         Ref: Subnet
       Tags:
